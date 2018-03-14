@@ -7,6 +7,7 @@ using System.Web.Mvc;
 using PRS.Models;
 
 using System.Diagnostics;
+using System.Web.Http;
 
 namespace PRS.Controllers
 {
@@ -70,7 +71,7 @@ namespace PRS.Controllers
                 return Failure("Unable to locate Purchase Request line item ID.");
             }
 
-            int id = existingPRLI.ProductID;
+            int id = existingPRLI.PurchaseRequestID;
             db.PurchaseRequestLineItems.Remove(existingPRLI);
 
             if (!Save())
@@ -118,18 +119,46 @@ namespace PRS.Controllers
         //you have to manually save after calling this.
         private void UpdateTotalForPurchaseRequest(int id)
         {
+            PurchaseRequest purchaseRequest = db.PurchaseRequests.Find(id);
+
+            purchaseRequest.Total =  db.PurchaseRequestLineItems
+                .Join(db.Products, prli => prli.ProductID, product => product.Id, (prli, product) => new { prli, product })
+                .Where(sc => sc.prli.PurchaseRequestID == id)
+                .Select(sc => sc.prli.Product.Price * sc.prli.Quantity)
+                .Sum();
+
+            // db = new AppDbContext();
+            /*
             List<PurchaseRequestLineItem> items = db.PurchaseRequestLineItems.Where(e => e.PurchaseRequestID == id).ToList();
-            if (items == null)
-            {
+            if (items == null){
                 return;
             }
             decimal total = 0.00m;
-            foreach (var i in items)
-            {
+            foreach (var i in items){
                 total += (i.Product.Price * i.Quantity);
             }
             PurchaseRequest purchaseRequest = db.PurchaseRequests.Find(id);
             purchaseRequest.Total = total;
+            */
+        }
+        
+        public ActionResult GetTotal([FromBody] int? id)
+        {
+            if(id == null)
+            {
+                return Failure("No null id allowed");
+            }
+            decimal total = UpdateTotalPurchaseRequest2( (int)id );
+            return Success("Total is " + total);
+        }
+
+        private decimal UpdateTotalPurchaseRequest2(int id)
+        {
+            return db.PurchaseRequestLineItems
+                .Join(db.Products, prli => prli.ProductID, product => product.Id, (prli, product) => new { prli, product })
+                .Where(sc => sc.prli.PurchaseRequestID == id)
+                .Select(sc => sc.prli.Product.Price * sc.prli.Quantity)
+                .Sum();
         }
     }
 }

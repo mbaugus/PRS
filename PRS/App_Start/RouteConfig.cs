@@ -16,7 +16,7 @@ namespace PRS
             routes.MapRoute(
                 name: "Login",
                 url: "{controller}/{action}/{username}/{password}",
-                defaults : new {controller = "Users"}
+                defaults : new {controller = "Login"}
             );
 
             routes.MapRoute(

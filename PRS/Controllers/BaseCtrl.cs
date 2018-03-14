@@ -21,7 +21,12 @@ namespace PRS.Controllers
         protected ActionResult Success(object data) { return Js(data); }
         protected ActionResult Success(string Message) { return Js(new { Status = "Success", Message }); }
         protected ActionResult Failure(string Message) { return Js(new { Status = "Failure", Message }); }
-        protected ActionResult Js(object data) { return Json(data, JsonRequestBehavior.AllowGet); }
+        //protected ActionResult Js(object data) { return Json(data, JsonRequestBehavior.AllowGet); }
+
+        protected ActionResult Js(object data)
+        {
+            return new JsonNetResult { Data = data };
+        }
         protected bool Save()
         {
             try

@@ -18,12 +18,19 @@ namespace PRS.Models
         [Index("UserNameIndex", IsUnique = true)]
         [Index(IsUnique = true)]
         public string UserName { get; set; }
+
         [StringLength(100)]
         [Required]
         public string Password { get; set; }
+
+        [StringLength(100)]
+        [Required]
+        public string Salt { get; set; }
+
         [StringLength(20)]
         [Required]
         public string FirstName { get; set; }
+
         [StringLength(20)]
         [Required]
         public string LastName { get; set; }
@@ -38,6 +45,9 @@ namespace PRS.Models
         public bool IsAdmin { get; set; }
         [Required]
         public bool Active { get; set; }
+
+        [Required]
+        public bool PasswordNeedsChanged { get; set; }
 
         [Required]
         public DateTime DateCreated { get; set; }
@@ -62,6 +72,8 @@ namespace PRS.Models
             this.Password = newData.Password;
             this.Phone = newData.Phone;
             this.UserName = newData.UserName;
+            this.PasswordNeedsChanged = newData.PasswordNeedsChanged;
+            this.Salt = newData.Salt;
             return this;
         }
 
